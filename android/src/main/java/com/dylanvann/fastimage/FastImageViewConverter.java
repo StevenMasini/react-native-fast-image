@@ -11,6 +11,8 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
 import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.Headers;
@@ -112,7 +114,17 @@ class FastImageViewConverter {
             .skipMemoryCache(skipMemoryCache)
             .priority(priority)
             .placeholder(TRANSPARENT_DRAWABLE);
-        
+
+        // support borderRadius for android
+        try {
+            if (source.hasKey("borderRadius")) {
+                int borderRadius = source.getInt("borderRadius");
+                if (borderRadius > 0) {
+                    options = options.transforms(new CenterCrop(), new RoundedCorners(borderRadius));
+                }
+            }
+        } catch (NoSuchKeyException e) {}
+
         if (imageSource.isResource()) {
             // Every local resource (drawable) in Android has its own unique numeric id, which are
             // generated at build time. Although these ids are unique, they are not guaranteed unique
